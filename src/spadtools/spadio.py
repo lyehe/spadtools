@@ -101,7 +101,7 @@ def _empty_array(*args, **kwargs) -> np.ndarray:
 
 
 class SPADData:
-    """Dataclass to handle SPAD data.
+    """Class to handle SPAD data.
 
     :param path: Path to the file to be loaded. If None, the object will be created
         without data.

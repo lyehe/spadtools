@@ -13,7 +13,7 @@ pip install -r requirements.txt
 To load a directory of files in to the memory:
 
 ```python
-from spadtools.spadio import SPADFile, SPADData
+from spadtools import SPADFile, SPADData
 dir_path = Path("path_to_data_directory")
 dataset = SPADFile(data_path, load_data=True)
 ```
@@ -62,8 +62,8 @@ data_array = new_data.data
 To generate dummy data:
 
 ```python
-import spadtools.spadclean as sc
-dummy_data = sc.GenerateTestData()
+from spadtools import GenerateTestData, SPADHotpixelTool
+dummy_data = GenerateTestData()
 dummy_array = dummy_data.generate() # Gaussian noise with hot pixels
 dummy_folder_with_files = dummy_data.create() # Returns path
 dummy_data.remove() # Remove the dummy data
@@ -74,7 +74,7 @@ To correct the hot pixels:
 ```python
 dummy_dataset = SPADFile(dummy_folder_with_files)
 data_array = dummy_dataset.combine()
-processing = sc.SPADHotpixelTool(data_array)
+processing = SPADHotpixelTool(data_array)
 hotpixel.inspect() # Show the hot pixels and correction result
 corrected_data = hotpixel.corrected_image # Correct the hot pixels
 hotpixel.reset()
