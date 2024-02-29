@@ -5,7 +5,7 @@ SPADTools is a simple data loader and preprocessor for the SPAD data from the SP
 ## Installation
 
 ```bash
-pip install -r requirements.txt
+pip install git+https://github.com/lyehe/spadtools.git
 ```
 
 ## Example usage
