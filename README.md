@@ -81,4 +81,5 @@ hotpixel.reset()
 hotpixel.inspect(hp_threshold=1.25, deadpixel=True, dp_threshold=3)
 ```
 
+Example of output image. Zoom in for detailed views.
 ![Example of hotpixel correction](./docs/images/example_output.png)
