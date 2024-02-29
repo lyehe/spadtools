@@ -13,7 +13,7 @@ pip install -r requirements.txt
 To load a directory of files in to the memory:
 
 ```python
-from src.spadtools.spadio import SPADFile, SPADData
+from spadtools.spadio import SPADFile, SPADData
 dir_path = Path("path_to_data_directory")
 dataset = SPADFile(data_path, load_data=True)
 ```
@@ -62,7 +62,7 @@ data_array = new_data.data
 To generate dummy data:
 
 ```python
-import src.spadtools.spadclean as sc
+import spadtools.spadclean as sc
 dummy_data = sc.GenerateTestData()
 dummy_array = dummy_data.generate() # Gaussian noise with hot pixels
 dummy_folder_with_files = dummy_data.create() # Returns path
