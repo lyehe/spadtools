@@ -1,30 +1,31 @@
-import numpy as np
-import cv2
-from concurrent.futures import ProcessPoolExecutor
-from .spadio import unbin, SPADData
-from pathlib import Path
+"""Clean hotpixels and deadpixels from SPAD data."""
+
 import logging
+from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
+
+import cv2
+import numpy as np
+
+from .spadio import SPADData, unbin
 
 logger = logging.getLogger(__name__)
-MAX_WORKER = 10
+MAX_WORKER = 12
+
 
 class SPADHotpixelTool:
     """Class to facilitate the hotpixel correction of SPAD data.
 
     :param data: SPAD data or 3D np array
-    :type data: SPADData | np.ndarray
     :param kwargs: Additional parameters
-    :type kwargs: dict
     """
 
     def __init__(self, data: SPADData | np.ndarray, **kwargs):
-        # Hint: you can preload the hotpixel locations from a different source
+        """Constructor method."""
         self.data = data if isinstance(data, np.ndarray) else data.data
         self.flattend_data = self._flatten(self.data)
         if (zero_count := self._zero_count()) > 512:
-            logger.warning(
-                f"Possible insufficient data for correction. Zero count: {zero_count}"
-            )
+            logger.warning(f"Possible insufficient data for correction. Zero count: {zero_count}")
         self.reset()
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -33,9 +34,7 @@ class SPADHotpixelTool:
         """Reset the intermediate results of the hotpixel correction.
 
         :param args: Attributes to reset
-        :type args: list[str]
         :return: The instance of the class
-        :rtype: SPADHotpixelTool
         """
         if not args:
             self.background = None
@@ -69,9 +68,7 @@ class SPADHotpixelTool:
         """Apply background filter to the input data and return the last result.
 
         :param method: Method for background filter, defaults to "open"
-        :type method: str, optional
         :return: Data after background filter
-        :rtype: np.ndarray
         """
         image = self.flattend_data
         methods = {
@@ -91,14 +88,12 @@ class SPADHotpixelTool:
             raise NotImplementedError
         return self.background
 
-    def get_hotpixels(self, **kwargs) -> np.ndarray:
+    def get_hotpixels(self, kernel_size: int = 3) -> np.ndarray:
         """Subtract background from the input data to get hot pixels.
 
         :return: Data after hot pixel filter
-        :rtype: np.ndarray
         """
         if self.hotpixel_image is None:
-            kernel_size: int = kwargs.get("kernel_size", 3)
             background_image = self.get_background(kernel_size=kernel_size)
             self.hotpixel_image = self.flattend_data - background_image
         return self.hotpixel_image
@@ -111,9 +106,7 @@ class SPADHotpixelTool:
         """Find hot pixels in the input data based on the standard deviation threshold.
 
         :param hp_threshold: Multiplyer for the standard deviation, defaults to 2
-        :type hp_threshold: float, optional
         :return: The locations of the hot pixels
-        :rtype: np.ndarray
         """
         if self.hotpixel_locations is None:
             hp_threshold = kwargs.get("hp_threshold", hp_threshold)
@@ -128,9 +121,7 @@ class SPADHotpixelTool:
         """Find dead pixels in the input data based on the standard deviation dp_threshold.
 
         :param dp_threshold: Multiplyer for the standard deviation, defaults to 1
-        :type dp_threshold: float, optional
         :return: The locations of the dead pixels
-        :rtype: np.ndarray
         """
         if self.deadpixel_locations is None:
             dp_threshold = kwargs.get("dp_threshold", 1)
@@ -141,18 +132,13 @@ class SPADHotpixelTool:
         """Correct the input data for dead pixels.
 
         :return: The corrected image
-        :rtype: np.ndarray
         """
-        image = (
-            np.array(self.data)
-            if self.corrected_image is None
-            else self.corrected_image
-        )
+        image = np.array(self.data) if self.corrected_image is None else self.corrected_image
         index = self.locate_deadpixels(**kwargs)
         kernel_size: int = kwargs.get("kernel_size", 3)
         background_image = self.get_background(kernel_size=kernel_size, method="median")
         expected_values = background_image[index[:, 0], index[:, 1]]
-        for (x, y), value in zip(index, expected_values):
+        for (x, y), value in zip(index, expected_values, strict=False):
             prob = value / image.shape[0]
             image[:, x, y] = np.random.binomial(1, prob, image.shape[0])
         self.corrected_image = image
@@ -162,7 +148,6 @@ class SPADHotpixelTool:
         """Get the values of the hot pixels in the input data.
 
         :return: The values of the hot pixels
-        :rtype: np.ndarray
         """
         if self.hotpixel_values is None:
             image = self.flattend_data
@@ -174,7 +159,6 @@ class SPADHotpixelTool:
         """Get the values of the hot pixels in the background image.
 
         :return: The values of the hot pixels
-        :rtype: np.ndarray
         """
         if self.expected_values is None:
             kernel_size: int = kwargs.get("kernel_size", 3)
@@ -187,9 +171,7 @@ class SPADHotpixelTool:
         """Get the probability of a hot pixel.
 
         :param probablity_base: Probability base, defaults to "hotpixels"
-        :type probablity_base: str, optional
         :return: The probability of a hot pixel
-        :rtype: np.ndarray
         """
         if self.probability_list is None:
             probablity_base = kwargs.get("probablity_base", "hotpixels")
@@ -208,19 +190,13 @@ class SPADHotpixelTool:
         """Correct the input data for hot pixels.
 
         :param probablity_base: Probability base, defaults to "hotpixels"
-        :type probablity_base: str, optional
         :return: The corrected image
-        :rtype: np.ndarray
         """
         probablity_base: str = kwargs.get("probablity_base", "hotpixels")
-        image = (
-            np.array(self.data)
-            if self.corrected_image is None
-            else self.corrected_image
-        )
+        image = np.array(self.data) if self.corrected_image is None else self.corrected_image
         index = self.locate_hotpixels(**kwargs)
         p = self.get_probablity(**kwargs)
-        for (x, y), prob in zip(index, p):
+        for (x, y), prob in zip(index, p, strict=False):
             if probablity_base == "all":
                 filling = np.random.binomial(1, prob, image.shape[0])
                 image[:, x, y] = filling
@@ -293,15 +269,10 @@ class GenerateTestData:
     """Class to generate test data for the SPADFile class. Test data saved in binary format.
 
     :param output_path: Path to the output, defaults to Path("./example_data")
-    :type output_path: Path, optional
     :param data: Data, defaults to binomial random data (p=0.05)
-    :type data: np.ndarray, optional
     :param file_name: File name prefix, defaults to "test_data"
-    :type file_name: str, optional
     :param number_of_files: Number of the generated test data, defaults to 20
-    :type number_of_files: int, optional
     :return: Path to the generated test data.
-    :rtype: Path
     """
 
     def __init__(
@@ -325,15 +296,12 @@ class GenerateTestData:
         """Generate test data using binomial sampling.
 
         :return: The generated test data
-        :rtype: np.ndarray
         """
         data = np.random.binomial(1, self.p, (self.z_size, 512, 512))
         for _ in range(self.number_of_hotpixels):
             x = np.random.randint(0, 512)
             y = np.random.randint(0, 512)
-            data[:, x, y] = np.random.binomial(
-                1, 1 - np.random.random() / 2, self.z_size
-            )
+            data[:, x, y] = np.random.binomial(1, 1 - np.random.random() / 2, self.z_size)
 
         return np.array(data)
 
@@ -341,17 +309,12 @@ class GenerateTestData:
         """Generate test data and save it to the specified path.
 
         :return: Path to the generated test data
-        :rtype: Path
         """
         self.output_path.mkdir(exist_ok=True)
         with ProcessPoolExecutor(max_workers=MAX_WORKER) as e:
             dummy_data = list(e.map(self.generate, range(self.number_of_files)))
             for i, data in enumerate(dummy_data):
-                e.submit(
-                    unbin,
-                    self.output_path / f"{self.file_name}{i:0>4}.bin",
-                    data
-                )
+                e.submit(unbin, self.output_path / f"{self.file_name}{i:0>4}.bin", data)
         return self.output_path
 
     def remove(self):

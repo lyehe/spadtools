@@ -1,16 +1,5 @@
-from setuptools import setup, find_packages
+"""Setup script for lazyimread."""
 
-setup(
-    name="spadtools",
-    version="0.0.1",
-    packages=find_packages(),
-    install_requires=[
-        "numpy",
-        "opencv-python-headless",
-        "zarr",
-        "tifffile",
-        "pillow",
-        "scipy",
-        "matplotlib",
-    ]
-)
+from setuptools import setup
+
+setup()
