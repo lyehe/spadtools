@@ -256,6 +256,7 @@ class SPADFile:
     """The SPADFile class is a container for SPADData objects.
 
     This class can be used to load and unload data from the SPADData objects.
+
     :param files: List of files to be loaded. If a directory is given, all files
         in the directory will be loaded. If a single file is given, only that file.
         It can also be a list of files.
