@@ -33,19 +33,17 @@ dev = [
     "pytest",
     "pytest-asyncio",
     "ruff",
-    "tox",
     "pre-commit",
     "build",
-    "twine",
     "sphinx",
     "sphinx_rtd_theme",
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/spadtools"]
+packages = ["spadtools"]
 
 [tool.pytest.ini_options]
-pythonpath = [".", "src"]
+pythonpath = [".", "spadtools"]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"

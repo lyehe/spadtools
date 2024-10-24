@@ -1,6 +1,24 @@
-# SPAD512 data loader and preprocessor
+# SPADTools: SPAD512 Data Loader and Preprocessor
 
-SPADTools is a simple data loader and preprocessor for the SPAD data from the SPAD512S Photon-Counting SPAD Camera. It can load the entire SPAD data folder with optimized loading and unpacking speed (10x faster than the vendor python loader). It support lazy loading, indexing and slicing of the data. It also support dummy data generation and statistical off-board hotpixel correction.
+SPADTools is a high-performance data loader and preprocessor for the SPAD512S Photon-Counting SPAD (Single-Photon Avalanche Diode) Camera. It provides efficient handling of SPAD data with optimized loading and unpacking speeds, offering up to 10x faster performance compared to the vendor's Python loader.
+
+## Features
+
+- Fast loading and unpacking of SPAD data
+- Lazy loading support
+- Data indexing and slicing
+- Dummy data generation for testing
+- Statistical off-board hotpixel correction
+- Easy-to-use API for data manipulation and visualization
+
+## Requirements
+
+- Python 3.10 or higher
+- NumPy
+- OpenCV
+- Pillow
+- Zarr
+- Tifffile
 
 ## Installation
 
