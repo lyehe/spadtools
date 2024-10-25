@@ -23,6 +23,8 @@ SPADTools is a high-performance data loader and preprocessor for the SPAD512S Ph
 ## Installation
 
 ```bash
+conda create -n spadtools python=3.10
+conda activate spadtools
 pip install git+https://github.com/lyehe/spadtools.git
 ```
 
