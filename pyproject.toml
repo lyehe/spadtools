@@ -33,9 +33,6 @@ dev = [
     "pytest",
     "ruff",
     "pre-commit",
-    "build",
-    "sphinx",
-    "sphinx_rtd_theme",
 ]
 
 [tool.hatch.build.targets.wheel]
